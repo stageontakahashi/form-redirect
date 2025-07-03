@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フォームリダイレクト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .redirect-info {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+        .manual-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .manual-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="message">Googleフォームに移動しています...</div>
+        <div class="spinner"></div>
+        <div class="redirect-info">
+            数秒後に自動的にリダイレクトされます
+        </div>
+        <a href="#" id="manualLink" class="manual-link" style="display: none;">
+            手動でフォームを開く
+        </a>
+    </div>
+
+    <script>
+        // URLパラメータからGoogleフォームのURLを取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const formUrl = urlParams.get('url') || urlParams.get('form');
+        
+        // デフォルトのGoogleフォームURL（実際のURLに置き換えてください）
+        const defaultFormUrl = 'https://forms.gle/your-form-id-here';
+        
+        // 使用するフォームURL
+        const targetUrl = formUrl || defaultFormUrl;
+        
+        // 手動リンクを設定
+        document.getElementById('manualLink').href = targetUrl;
+        
+        // Google Analytics（必要に応じて）
+        // gtag('event', 'form_redirect', {
+        //     'form_url': targetUrl,
+        //     'referrer': document.referrer
+        // });
+        
+        // クリック率計測用の関数
+        function trackRedirect() {
+            // ここに計測コードを追加
+            console.log('フォームリダイレクト実行:', targetUrl);
+            
+            // 例：fetch APIでデータを送信
+            // fetch('/api/track-redirect', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({
+            //         url: targetUrl,
+            //         timestamp: new Date().toISOString(),
+            //         referrer: document.referrer
+            //     })
+            // });
+        }
+        
+        // リダイレクト実行
+        if (targetUrl && targetUrl !== defaultFormUrl) {
+            trackRedirect();
+            
+            // 2秒後にリダイレクト
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 2000);
+            
+            // 5秒後に手動リンクを表示
+            setTimeout(() => {
+                document.getElementById('manualLink').style.display = 'inline-block';
+            }, 5000);
+        } else {
+            // URLが指定されていない場合の処理
+            document.querySelector('.message').textContent = 'フォームURLが指定されていません';
+            document.querySelector('.spinner').style.display = 'none';
+            document.querySelector('.redirect-info').textContent = 'URLパラメータ ?url= または ?form= でGoogleフォームのURLを指定してください';
+            document.getElementById('manualLink').style.display = 'inline-block';
+            document.getElementById('manualLink').textContent = 'サンプルフォーム';
+        }
+    </script>
+</body>
+</html>
